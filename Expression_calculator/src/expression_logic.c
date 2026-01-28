@@ -8,7 +8,7 @@
 #define MAX_INPUT 100
 
 char *read_expression () {
-  //Cria uma string para guardar o input do usuário
+  //Aloca uma string para guardar o input do usuário
   char *expression = malloc (MAX_INPUT * sizeof(char));
   if (expression == NULL) {return NULL;}
 
@@ -25,27 +25,28 @@ void destroy_expression (char *expression) {
 }
 
 void print_expression (char *expression) {
-  //Imprime a expressão de input
-  printf("Printing Expression---------------\n");
-  int tam_expression = strlen(expression);
-  for (int i = 0; i < tam_expression; i++) {
+  printf("\n------------------------------\n");
+  printf("PRINTING EXPRESSION:\n");
+
+  int expression_size = strlen(expression);
+  for (int i = 0; i < expression_size; i++) {
     printf("%c",expression[i]);
   }
-  printf("\n-------------------------------\n"); 
+  printf("\n-------------------------------"); 
 }
 
 struct token *tokenize_expression (char *expression, unsigned short *total_tokens) {
   //Retorna o tamanho da string sem considerar o \0
-  unsigned short tam_expression = strlen(expression);
-  struct token *token_vector = malloc (tam_expression * sizeof(struct token));
-  if (token_vector == NULL) {return NULL;
-  }
+  unsigned short expression_size = strlen(expression);
+  struct token *token_vector = malloc (expression_size * sizeof(struct token));
+  if (token_vector == NULL) {return NULL;}
 
   //Aponta para o elemento da string que sera analisado
   const char *ptr = expression;
   unsigned short token_index = 0;
 
   while (*ptr != '\0') {
+    //ignora os espaços entre a expressão
     if (isspace(*ptr)) {
       ptr++;
       continue;
@@ -74,7 +75,7 @@ struct token *tokenize_expression (char *expression, unsigned short *total_token
       token_vector[token_index].operation = *ptr;
       ptr++;
     } else {
-      printf("Invalid character\n");
+      printf("\nInvalid character\n");
       free(token_vector);
       token_vector = NULL;
       return NULL;
@@ -83,13 +84,21 @@ struct token *tokenize_expression (char *expression, unsigned short *total_token
   }
 
   *total_tokens = token_index;
-  token_vector = (struct token *) realloc (token_vector, *total_tokens * sizeof(struct token));
-  
+
+  //Redimensiona o vetor com base no número de tokens gerados
+  struct token *temp = (struct token *) realloc (token_vector, *total_tokens * sizeof(struct token));
+  if (temp) {
+    token_vector = temp;
+  }
+  else {
+    perror("\nReallocate ERROR\n");
+    exit(EXIT_FAILURE);
+  }
+
   return token_vector;
 }
 
 void destroy_token_vector (struct token *vector) {
-
   if(vector) {
     free(vector);
     vector = NULL;
@@ -99,23 +108,27 @@ void destroy_token_vector (struct token *vector) {
 void print_token_vector (struct token *vector, unsigned short total_tokens) {
   if (!vector) {return;}
 
+  printf("----------------------------------------\n");
+  printf("\nPrinting token VECTOR:\n");
+
   for (int i = 0; i < total_tokens; i++) {
     printf("Token %d: ", i);
     switch (vector[i].type) {
       case number:
-        printf("[Número] %lf\n", vector[i].value);
+        printf("[Number] %lf\n", vector[i].value);
         break;
       case operation:
-        printf("[Operador] %c\n", vector[i].operation);
+        printf("[Operator] %c\n", vector[i].operation);
         break;
       case opened_parentheses:
-        printf("[Parêntese] (\n");
+        printf("[Parenthesis] (\n");
         break;
       case closed_parentheses:
-        printf("[Parêntese] )\n");
+        printf("[Parenthesis] )\n");
         break;
       default:
-        printf("[Desconhecido]\n");
+        printf("[Unknown char]\n");
     }
   }
+  printf("\n----------------------------------------\n");
 }

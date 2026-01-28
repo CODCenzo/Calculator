@@ -21,6 +21,8 @@ void destroy_expression (char *expression);
 
 void print_expression (char *expression);
 
+//Transforma o input do usuarios em um vetor de tokens utilizaveis
+//transforms user input into usable tokens.
 struct token *tokenize_expression (char *expression, unsigned short *total_tokens);
 
 void destroy_token_vector (struct token *vector);
